@@ -190,6 +190,47 @@ export default function DashboardPage() {
     setDateRange(newRange);
   };
 
+  const handleReset = async () => {
+    try {
+      // Fetch oldest income record
+      const { data: oldestIncome, error: incomeError } = await supabase
+        .from('income')
+        .select('date')
+        .order('date', { ascending: true })
+        .limit(1);
+
+      if (incomeError) throw incomeError;
+
+      // Fetch oldest expense record
+      const { data: oldestExpense, error: expenseError } = await supabase
+        .from('expenses')
+        .select('date')
+        .order('date', { ascending: true })
+        .limit(1);
+
+      if (expenseError) throw expenseError;
+
+      // Find the earliest date between income and expenses
+      let startDate = new Date().toISOString().split('T')[0]; // Default to today
+      
+      if (oldestIncome?.[0]?.date) {
+        startDate = oldestIncome[0].date;
+      }
+      
+      if (oldestExpense?.[0]?.date && oldestExpense[0].date < startDate) {
+        startDate = oldestExpense[0].date;
+      }
+
+      // Set date range from oldest record to today
+      setDateRange({
+        startDate,
+        endDate: new Date().toISOString().split('T')[0]
+      });
+    } catch (error) {
+      console.error('Error finding oldest record:', error);
+    }
+  };
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -228,6 +269,12 @@ export default function DashboardPage() {
             >
               This Year
             </button>
+            <button
+              onClick={handleReset}
+              className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 text-xs font-medium rounded text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              All Time
+            </button>
           </div>
           <div className="flex gap-4">
             <div>
@@ -239,7 +286,7 @@ export default function DashboardPage() {
                 id="startDate"
                 value={dateRange.startDate}
                 onChange={(e) => handleDateRangeChange({ ...dateRange, startDate: e.target.value })}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               />
             </div>
             <div>
@@ -252,7 +299,7 @@ export default function DashboardPage() {
                 value={dateRange.endDate}
                 onChange={(e) => handleDateRangeChange({ ...dateRange, endDate: e.target.value })}
                 max={new Date().toISOString().split('T')[0]}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               />
             </div>
           </div>
