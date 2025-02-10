@@ -74,12 +74,12 @@ export default function Home() {
           <h3 className="text-lg font-medium leading-6 text-gray-900">Quick Actions</h3>
           <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <a href="/income/new" className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 w-full">
+              <a href="/income" className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 w-full">
                 Record Income
               </a>
             </div>
             <div>
-              <a href="/expenses/new" className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 w-full">
+              <a href="/expenses" className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 w-full">
                 Record Expense
               </a>
             </div>
