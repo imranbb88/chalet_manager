@@ -1,4 +1,69 @@
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
+import { createBrowserClient } from '@supabase/ssr';
+import { formatCurrency } from '@/utils/formatters';
+
+interface SummaryData {
+  totalIncome: number;
+  totalExpenses: number;
+  netProfit: number;
+}
+
 export default function Home() {
+  const [summaryData, setSummaryData] = useState<SummaryData>({
+    totalIncome: 0,
+    totalExpenses: 0,
+    netProfit: 0
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  const fetchSummaryData = useCallback(async () => {
+    try {
+      // Fetch income
+      const { data: incomeData, error: incomeError } = await supabase
+        .from('income')
+        .select('amount');
+
+      if (incomeError) throw incomeError;
+
+      // Fetch expenses
+      const { data: expenseData, error: expenseError } = await supabase
+        .from('expenses')
+        .select('amount');
+
+      if (expenseError) throw expenseError;
+
+      // Calculate totals
+      const totalIncome = incomeData?.reduce((sum, item) => sum + item.amount, 0) || 0;
+      const totalExpenses = expenseData?.reduce((sum, item) => sum + item.amount, 0) || 0;
+      const netProfit = totalIncome - totalExpenses;
+
+      setSummaryData({
+        totalIncome,
+        totalExpenses,
+        netProfit
+      });
+    } catch (error) {
+      console.error('Error fetching summary data:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [supabase]);
+
+  useEffect(() => {
+    fetchSummaryData();
+  }, [fetchSummaryData]);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <div className="space-y-6">
       <div className="md:flex md:items-center md:justify-between">
@@ -22,7 +87,7 @@ export default function Home() {
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">Total Revenue</dt>
-                  <dd className="text-lg font-medium text-gray-900">$0.00</dd>
+                  <dd className="text-lg font-medium text-gray-900">Rs. {formatCurrency(summaryData.totalIncome)}</dd>
                 </dl>
               </div>
             </div>
@@ -41,7 +106,7 @@ export default function Home() {
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">Total Expenses</dt>
-                  <dd className="text-lg font-medium text-gray-900">$0.00</dd>
+                  <dd className="text-lg font-medium text-gray-900">Rs. {formatCurrency(summaryData.totalExpenses)}</dd>
                 </dl>
               </div>
             </div>
@@ -60,7 +125,9 @@ export default function Home() {
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">Net Profit</dt>
-                  <dd className="text-lg font-medium text-gray-900">$0.00</dd>
+                  <dd className={`text-lg font-medium ${summaryData.netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    Rs. {formatCurrency(summaryData.netProfit)}
+                  </dd>
                 </dl>
               </div>
             </div>

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
 import type { Income } from '@/types/database.types';
 import { generateSampleIncome } from '@/utils/sampleData';
+import { formatCurrency } from '@/utils/formatters';
 
 export default function IncomePage() {
   const [incomeEntries, setIncomeEntries] = useState<Income[]>([]);
@@ -144,7 +145,7 @@ export default function IncomePage() {
               </div>
               <div>
                 <label htmlFor="amount" className="block text-sm font-medium text-gray-700">
-                  Amount ($)
+                  Amount (Rs.)
                 </label>
                 <input
                   type="number"
@@ -217,7 +218,7 @@ export default function IncomePage() {
                 {incomeEntries.map((entry) => (
                   <tr key={entry.id}>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{entry.date}</td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">${entry.amount.toFixed(2)}</td>
+                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">Rs. {formatCurrency(entry.amount)}</td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{entry.description}</td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">{entry.category}</td>
                   </tr>

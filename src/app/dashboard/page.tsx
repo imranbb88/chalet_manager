@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
+import { formatCurrency } from '@/utils/formatters';
 
 interface Transaction {
   id: string;
@@ -117,8 +118,8 @@ export default function DashboardPage() {
               </div>
               <div className="ml-5 w-0 flex-1">
                 <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Total Income</dt>
-                  <dd className="text-lg font-medium text-gray-900">${summaryData.totalIncome.toFixed(2)}</dd>
+                  <dt className="text-sm font-medium text-gray-500 truncate">Total Revenue</dt>
+                  <dd className="text-lg font-medium text-gray-900">Rs. {formatCurrency(summaryData.totalIncome)}</dd>
                 </dl>
               </div>
             </div>
@@ -136,7 +137,7 @@ export default function DashboardPage() {
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">Total Expenses</dt>
-                  <dd className="text-lg font-medium text-gray-900">${summaryData.totalExpenses.toFixed(2)}</dd>
+                  <dd className="text-lg font-medium text-gray-900">Rs. {formatCurrency(summaryData.totalExpenses)}</dd>
                 </dl>
               </div>
             </div>
@@ -155,7 +156,7 @@ export default function DashboardPage() {
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">Net Profit</dt>
                   <dd className={`text-lg font-medium ${summaryData.netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    ${summaryData.netProfit.toFixed(2)}
+                    Rs. {formatCurrency(summaryData.netProfit)}
                   </dd>
                 </dl>
               </div>
@@ -196,7 +197,7 @@ export default function DashboardPage() {
                       </span>
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      ${transaction.amount.toFixed(2)}
+                      Rs. {formatCurrency(transaction.amount)}
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                       {transaction.description}

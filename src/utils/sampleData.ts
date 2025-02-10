@@ -36,7 +36,7 @@ const expenseDescriptions = [
 export const generateSampleIncome = (count: number = 5) => {
   return Array.from({ length: count }, () => ({
     date: randomDate(),
-    amount: randomAmount(500, 2000),
+    amount: randomAmount(50000, 200000),
     description: incomeDescriptions[Math.floor(Math.random() * incomeDescriptions.length)],
     category: ['RENTAL', 'SERVICES', 'OTHER'][Math.floor(Math.random() * 3)]
   }));
@@ -45,7 +45,7 @@ export const generateSampleIncome = (count: number = 5) => {
 export const generateSampleExpenses = (count: number = 5) => {
   return Array.from({ length: count }, () => ({
     date: randomDate(),
-    amount: randomAmount(100, 800),
+    amount: randomAmount(10000, 80000),
     description: expenseDescriptions[Math.floor(Math.random() * expenseDescriptions.length)],
     category: ['MAINTENANCE', 'UTILITIES', 'SUPPLIES', 'CLEANING', 'INSURANCE', 'OTHER'][Math.floor(Math.random() * 6)]
   }));
