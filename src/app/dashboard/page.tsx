@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
-import type { Income, Expense } from '@/types/database.types';
 
 interface Transaction {
   id: string;
@@ -33,11 +32,7 @@ export default function DashboardPage() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, [fetchDashboardData]);
-
-  async function fetchDashboardData() {
+  const fetchDashboardData = useCallback(async () => {
     try {
       // Fetch income
       const { data: incomeData, error: incomeError } = await supabase
@@ -77,7 +72,7 @@ export default function DashboardPage() {
           description: expense.description
         })) || [])
       ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-        .slice(0, 10); // Get only the 10 most recent transactions
+        .slice(0, 10);
 
       setSummaryData({
         totalIncome,
@@ -90,7 +85,11 @@ export default function DashboardPage() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [supabase]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   if (isLoading) {
     return <div>Loading...</div>;

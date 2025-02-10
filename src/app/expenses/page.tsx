@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
 import type { Expense } from '@/types/database.types';
 import { generateSampleExpenses } from '@/utils/sampleData';
@@ -21,11 +21,7 @@ export default function ExpensesPage() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  useEffect(() => {
-    fetchExpenseEntries();
-  }, []);
-
-  async function fetchExpenseEntries() {
+  const fetchExpenseEntries = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('expenses')
@@ -44,7 +40,11 @@ export default function ExpensesPage() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [supabase]);
+
+  useEffect(() => {
+    fetchExpenseEntries();
+  }, [fetchExpenseEntries]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

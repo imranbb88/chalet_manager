@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
 import type { Income } from '@/types/database.types';
 import { generateSampleIncome } from '@/utils/sampleData';
@@ -21,11 +21,7 @@ export default function IncomePage() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 
-  useEffect(() => {
-    fetchIncomeEntries();
-  }, []);
-
-  async function fetchIncomeEntries() {
+  const fetchIncomeEntries = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('income')
@@ -44,7 +40,11 @@ export default function IncomePage() {
     } finally {
       setIsLoading(false);
     }
-  }
+  }, [supabase]);
+
+  useEffect(() => {
+    fetchIncomeEntries();
+  }, [fetchIncomeEntries]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
