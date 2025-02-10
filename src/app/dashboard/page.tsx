@@ -17,16 +17,53 @@ interface SummaryData {
   totalExpenses: number;
   netProfit: number;
   recentTransactions: Transaction[];
+  monthlyData: {
+    month: string;
+    income: number;
+    expenses: number;
+  }[];
 }
+
+const getDateRangePreset = (preset: 'thisMonth' | 'lastMonth' | 'last3Months' | 'thisYear') => {
+  const today = new Date();
+  const startDate = new Date();
+  
+  switch (preset) {
+    case 'thisMonth':
+      startDate.setDate(1);
+      break;
+    case 'lastMonth':
+      startDate.setMonth(startDate.getMonth() - 1);
+      startDate.setDate(1);
+      break;
+    case 'last3Months':
+      startDate.setMonth(startDate.getMonth() - 3);
+      break;
+    case 'thisYear':
+      startDate.setMonth(0);
+      startDate.setDate(1);
+      break;
+  }
+  
+  return {
+    startDate: startDate.toISOString().split('T')[0],
+    endDate: today.toISOString().split('T')[0]
+  };
+};
 
 export default function DashboardPage() {
   const [summaryData, setSummaryData] = useState<SummaryData>({
     totalIncome: 0,
     totalExpenses: 0,
     netProfit: 0,
-    recentTransactions: []
+    recentTransactions: [],
+    monthlyData: []
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [dateRange, setDateRange] = useState({
+    startDate: new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().split('T')[0], // Last month
+    endDate: new Date().toISOString().split('T')[0] // Today
+  });
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -35,18 +72,27 @@ export default function DashboardPage() {
 
   const fetchDashboardData = useCallback(async () => {
     try {
-      // Fetch income
+      // Adjust end date to include the entire day
+      const endDateWithTime = new Date(dateRange.endDate);
+      endDateWithTime.setHours(23, 59, 59, 999);
+      const adjustedEndDate = endDateWithTime.toISOString();
+
+      // Fetch income within date range
       const { data: incomeData, error: incomeError } = await supabase
         .from('income')
         .select('*')
+        .gte('date', dateRange.startDate)
+        .lte('date', dateRange.endDate)
         .order('date', { ascending: false });
 
       if (incomeError) throw incomeError;
 
-      // Fetch expenses
+      // Fetch expenses within date range
       const { data: expenseData, error: expenseError } = await supabase
         .from('expenses')
         .select('*')
+        .gte('date', dateRange.startDate)
+        .lte('date', dateRange.endDate)
         .order('date', { ascending: false });
 
       if (expenseError) throw expenseError;
@@ -75,22 +121,74 @@ export default function DashboardPage() {
       ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
         .slice(0, 10);
 
+      // Calculate monthly data
+      const monthlyDataMap = new Map<string, { income: number; expenses: number }>();
+      
+      // Initialize months
+      const startDate = new Date(dateRange.startDate);
+      const endDate = new Date(dateRange.endDate);
+      let currentDate = new Date(startDate);
+      
+      while (currentDate <= endDate) {
+        const monthKey = currentDate.toISOString().slice(0, 7); // YYYY-MM format
+        monthlyDataMap.set(monthKey, { income: 0, expenses: 0 });
+        currentDate.setMonth(currentDate.getMonth() + 1);
+      }
+
+      // Aggregate income by month
+      incomeData?.forEach(income => {
+        const monthKey = income.date.slice(0, 7);
+        const monthData = monthlyDataMap.get(monthKey) || { income: 0, expenses: 0 };
+        monthlyDataMap.set(monthKey, {
+          ...monthData,
+          income: monthData.income + income.amount
+        });
+      });
+
+      // Aggregate expenses by month
+      expenseData?.forEach(expense => {
+        const monthKey = expense.date.slice(0, 7);
+        const monthData = monthlyDataMap.get(monthKey) || { income: 0, expenses: 0 };
+        monthlyDataMap.set(monthKey, {
+          ...monthData,
+          expenses: monthData.expenses + expense.amount
+        });
+      });
+
+      const monthlyData = Array.from(monthlyDataMap.entries())
+        .map(([month, data]) => ({
+          month,
+          income: data.income,
+          expenses: data.expenses
+        }))
+        .sort((a, b) => a.month.localeCompare(b.month));
+
       setSummaryData({
         totalIncome,
         totalExpenses,
         netProfit,
-        recentTransactions
+        recentTransactions,
+        monthlyData
       });
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
     } finally {
       setIsLoading(false);
     }
-  }, [supabase]);
+  }, [supabase, dateRange]);
 
   useEffect(() => {
     fetchDashboardData();
   }, [fetchDashboardData]);
+
+  const handleDateRangeChange = (newRange: { startDate: string; endDate: string }) => {
+    // Validate that end date is not before start date
+    if (newRange.endDate < newRange.startDate) {
+      alert('End date cannot be before start date');
+      return;
+    }
+    setDateRange(newRange);
+  };
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -103,6 +201,61 @@ export default function DashboardPage() {
           <h2 className="text-2xl font-bold leading-7 text-gray-900 sm:truncate sm:text-3xl sm:tracking-tight">
             Dashboard
           </h2>
+        </div>
+        <div className="mt-4 flex gap-4 md:ml-4 md:mt-0">
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleDateRangeChange(getDateRangePreset('thisMonth'))}
+              className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              This Month
+            </button>
+            <button
+              onClick={() => handleDateRangeChange(getDateRangePreset('lastMonth'))}
+              className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Last Month
+            </button>
+            <button
+              onClick={() => handleDateRangeChange(getDateRangePreset('last3Months'))}
+              className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              Last 3 Months
+            </button>
+            <button
+              onClick={() => handleDateRangeChange(getDateRangePreset('thisYear'))}
+              className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            >
+              This Year
+            </button>
+          </div>
+          <div className="flex gap-4">
+            <div>
+              <label htmlFor="startDate" className="block text-sm font-medium text-gray-700">
+                Start Date
+              </label>
+              <input
+                type="date"
+                id="startDate"
+                value={dateRange.startDate}
+                onChange={(e) => handleDateRangeChange({ ...dateRange, startDate: e.target.value })}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              />
+            </div>
+            <div>
+              <label htmlFor="endDate" className="block text-sm font-medium text-gray-700">
+                End Date
+              </label>
+              <input
+                type="date"
+                id="endDate"
+                value={dateRange.endDate}
+                onChange={(e) => handleDateRangeChange({ ...dateRange, endDate: e.target.value })}
+                max={new Date().toISOString().split('T')[0]}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -161,6 +314,46 @@ export default function DashboardPage() {
                 </dl>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Monthly Analytics */}
+      <div className="bg-white shadow sm:rounded-lg">
+        <div className="px-4 py-5 sm:p-6">
+          <h3 className="text-lg font-medium leading-6 text-gray-900 mb-4">Monthly Analytics</h3>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-300">
+              <thead>
+                <tr>
+                  <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Month</th>
+                  <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Income</th>
+                  <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Expenses</th>
+                  <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Profit/Loss</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {summaryData.monthlyData.map((month) => {
+                  const profit = month.income - month.expenses;
+                  return (
+                    <tr key={month.month}>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        {new Date(month.month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        Rs. {formatCurrency(month.income)}
+                      </td>
+                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+                        Rs. {formatCurrency(month.expenses)}
+                      </td>
+                      <td className={`whitespace-nowrap px-3 py-4 text-sm ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        Rs. {formatCurrency(profit)}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
