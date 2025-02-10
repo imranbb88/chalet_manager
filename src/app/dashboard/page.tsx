@@ -75,8 +75,7 @@ export default function DashboardPage() {
       // Adjust end date to include the entire day
       const endDateWithTime = new Date(dateRange.endDate);
       endDateWithTime.setHours(23, 59, 59, 999);
-      const adjustedEndDate = endDateWithTime.toISOString();
-
+      
       // Fetch income within date range
       const { data: incomeData, error: incomeError } = await supabase
         .from('income')
@@ -127,7 +126,7 @@ export default function DashboardPage() {
       // Initialize months
       const startDate = new Date(dateRange.startDate);
       const endDate = new Date(dateRange.endDate);
-      let currentDate = new Date(startDate);
+      const currentDate = new Date(startDate);
       
       while (currentDate <= endDate) {
         const monthKey = currentDate.toISOString().slice(0, 7); // YYYY-MM format
