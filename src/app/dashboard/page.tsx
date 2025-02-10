@@ -243,8 +243,8 @@ export default function DashboardPage() {
             Dashboard
           </h2>
         </div>
-        <div className="mt-4 flex gap-4 md:ml-4 md:mt-0">
-          <div className="flex gap-2">
+        <div className="mt-4 flex flex-wrap gap-2 md:ml-4 md:mt-0">
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={() => handleDateRangeChange(getDateRangePreset('thisMonth'))}
               className="inline-flex items-center px-2.5 py-1.5 border border-gray-300 text-xs font-medium rounded text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
@@ -276,38 +276,40 @@ export default function DashboardPage() {
               All Time
             </button>
           </div>
-          <div className="flex gap-4">
-            <div>
-              <label htmlFor="startDate" className="block text-sm font-medium text-gray-700">
-                Start Date
-              </label>
-              <input
-                type="date"
-                id="startDate"
-                value={dateRange.startDate}
-                onChange={(e) => handleDateRangeChange({ ...dateRange, startDate: e.target.value })}
-                className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              />
-            </div>
-            <div>
-              <label htmlFor="endDate" className="block text-sm font-medium text-gray-700">
-                End Date
-              </label>
-              <input
-                type="date"
-                id="endDate"
-                value={dateRange.endDate}
-                onChange={(e) => handleDateRangeChange({ ...dateRange, endDate: e.target.value })}
-                max={new Date().toISOString().split('T')[0]}
-                className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              />
-            </div>
-          </div>
+        </div>
+      </div>
+
+      {/* Date Range Inputs */}
+      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+        <div>
+          <label htmlFor="startDate" className="block text-sm font-medium text-gray-700">
+            Start Date
+          </label>
+          <input
+            type="date"
+            id="startDate"
+            value={dateRange.startDate}
+            onChange={(e) => handleDateRangeChange({ ...dateRange, startDate: e.target.value })}
+            className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          />
+        </div>
+        <div>
+          <label htmlFor="endDate" className="block text-sm font-medium text-gray-700">
+            End Date
+          </label>
+          <input
+            type="date"
+            id="endDate"
+            value={dateRange.endDate}
+            onChange={(e) => handleDateRangeChange({ ...dateRange, endDate: e.target.value })}
+            max={new Date().toISOString().split('T')[0]}
+            className="mt-1 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          />
         </div>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div className="bg-white overflow-hidden shadow rounded-lg">
           <div className="p-5">
             <div className="flex items-center">
@@ -318,8 +320,8 @@ export default function DashboardPage() {
               </div>
               <div className="ml-5 w-0 flex-1">
                 <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Total Revenue</dt>
-                  <dd className="text-lg font-medium text-gray-900">Rs. {formatCurrency(summaryData.totalIncome)}</dd>
+                  <dt className="text-sm font-medium text-gray-500 truncate">Total Income</dt>
+                  <dd className="text-lg font-medium text-gray-900">{formatCurrency(summaryData.totalIncome)}</dd>
                 </dl>
               </div>
             </div>
@@ -331,33 +333,31 @@ export default function DashboardPage() {
             <div className="flex items-center">
               <div className="flex-shrink-0">
                 <svg className="h-6 w-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">Total Expenses</dt>
-                  <dd className="text-lg font-medium text-gray-900">Rs. {formatCurrency(summaryData.totalExpenses)}</dd>
+                  <dd className="text-lg font-medium text-gray-900">{formatCurrency(summaryData.totalExpenses)}</dd>
                 </dl>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="bg-white overflow-hidden shadow rounded-lg">
+        <div className="bg-white overflow-hidden shadow rounded-lg sm:col-span-2 lg:col-span-1">
           <div className="p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <svg className="h-6 w-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                <svg className="h-6 w-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                 </svg>
               </div>
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">Net Profit</dt>
-                  <dd className={`text-lg font-medium ${summaryData.netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                    Rs. {formatCurrency(summaryData.netProfit)}
-                  </dd>
+                  <dd className="text-lg font-medium text-gray-900">{formatCurrency(summaryData.netProfit)}</dd>
                 </dl>
               </div>
             </div>
@@ -365,88 +365,38 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Monthly Analytics */}
-      <div className="bg-white shadow sm:rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-lg font-medium leading-6 text-gray-900 mb-4">Monthly Analytics</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-300">
-              <thead>
-                <tr>
-                  <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Month</th>
-                  <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Income</th>
-                  <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Expenses</th>
-                  <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Profit/Loss</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {summaryData.monthlyData.map((month) => {
-                  const profit = month.income - month.expenses;
-                  return (
-                    <tr key={month.month}>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                        {new Date(month.month + '-01').toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                        Rs. {formatCurrency(month.income)}
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                        Rs. {formatCurrency(month.expenses)}
-                      </td>
-                      <td className={`whitespace-nowrap px-3 py-4 text-sm ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                        Rs. {formatCurrency(profit)}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
       {/* Recent Transactions */}
-      <div className="bg-white shadow sm:rounded-lg">
-        <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-lg font-medium leading-6 text-gray-900 mb-4">Recent Transactions</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-300">
-              <thead>
-                <tr>
-                  <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Date</th>
-                  <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Type</th>
-                  <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Amount</th>
-                  <th className="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Description</th>
+      <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div className="px-4 py-5 sm:px-6">
+          <h3 className="text-lg leading-6 font-medium text-gray-900">Recent Transactions</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {summaryData.recentTransactions.map((transaction) => (
+                <tr key={transaction.id}>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{new Date(transaction.date).toLocaleDateString()}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      transaction.type === 'INCOME' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                    }`}>
+                      {transaction.type}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatCurrency(transaction.amount)}</td>
+                  <td className="px-6 py-4 text-sm text-gray-900 truncate max-w-xs">{transaction.description}</td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {summaryData.recentTransactions.map((transaction) => (
-                  <tr key={transaction.id}>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {transaction.date}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm">
-                      <span
-                        className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
-                          transaction.type === 'INCOME'
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}
-                      >
-                        {transaction.type}
-                      </span>
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      Rs. {formatCurrency(transaction.amount)}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {transaction.description}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

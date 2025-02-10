@@ -20,7 +20,7 @@ export function NavBar() {
   };
 
   return (
-    <nav className="bg-white shadow-lg">
+    <nav className="bg-white shadow-lg fixed top-0 left-0 right-0 z-50">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between h-16">
           <div className="flex">
@@ -54,8 +54,9 @@ export function NavBar() {
           </div>
 
           <div className="flex items-center">
+            {/* Desktop menu */}
             {user ? (
-              <div className="flex items-center space-x-4">
+              <div className="hidden sm:flex sm:items-center sm:space-x-4">
                 <span className="text-gray-700">{user.email}</span>
                 <button
                   onClick={handleSignOut}
@@ -65,7 +66,7 @@ export function NavBar() {
                 </button>
               </div>
             ) : (
-              <div className="flex items-center space-x-4">
+              <div className="hidden sm:flex sm:items-center sm:space-x-4">
                 <Link
                   href="/login"
                   className="text-gray-700 hover:text-gray-900"
@@ -82,7 +83,7 @@ export function NavBar() {
             )}
 
             {/* Mobile menu button */}
-            <div className="sm:hidden ml-4">
+            <div className="sm:hidden">
               <button
                 type="button"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -109,31 +110,70 @@ export function NavBar() {
         </div>
 
         {/* Mobile menu */}
-        {isMenuOpen && user && (
-          <div className="sm:hidden">
-            <div className="pt-2 pb-3 space-y-1">
-              <Link
-                href="/dashboard"
-                className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Dashboard
-              </Link>
-              <Link
-                href="/income"
-                className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Income
-              </Link>
-              <Link
-                href="/expenses"
-                className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Expenses
-              </Link>
-            </div>
+        {isMenuOpen && (
+          <div className="sm:hidden border-t border-gray-200">
+            {user ? (
+              <>
+                <div className="pt-4 pb-3 border-b border-gray-200">
+                  <div className="px-4 flex items-center">
+                    <div className="ml-3">
+                      <div className="text-base font-medium text-gray-800">{user.email}</div>
+                    </div>
+                  </div>
+                </div>
+                <div className="pt-2 pb-3 space-y-1">
+                  <Link
+                    href="/dashboard"
+                    className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Dashboard
+                  </Link>
+                  <Link
+                    href="/income"
+                    className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Income
+                  </Link>
+                  <Link
+                    href="/expenses"
+                    className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    Expenses
+                  </Link>
+                </div>
+                <div className="pt-4 pb-3">
+                  <button
+                    onClick={() => {
+                      handleSignOut();
+                      setIsMenuOpen(false);
+                    }}
+                    className="block w-full text-left pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-red-600 hover:text-red-800 hover:bg-red-50 hover:border-red-300"
+                  >
+                    Sign Out
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="pt-2 pb-3 space-y-1">
+                <Link
+                  href="/login"
+                  className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/signup"
+                  className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 hover:border-indigo-300"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Sign Up
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </div>
