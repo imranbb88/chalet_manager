@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createBrowserClient } from '@supabase/ssr';
 import type { Expense } from '@/types/database.types';
 import { generateSampleExpenses } from '@/utils/sampleData';
 
@@ -15,6 +15,11 @@ export default function ExpensesPage() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
   useEffect(() => {
     fetchExpenseEntries();
@@ -152,7 +157,7 @@ export default function ExpensesPage() {
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 />
               </div>
-              <div className="sm:col-span-2">
+              <div>
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700">
                   Description
                 </label>
@@ -165,12 +170,13 @@ export default function ExpensesPage() {
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 />
               </div>
-              <div className="sm:col-span-2">
+              <div>
                 <label htmlFor="category" className="block text-sm font-medium text-gray-700">
                   Category
                 </label>
                 <select
                   id="category"
+                  required
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
@@ -178,8 +184,6 @@ export default function ExpensesPage() {
                   <option value="MAINTENANCE">Maintenance</option>
                   <option value="UTILITIES">Utilities</option>
                   <option value="SUPPLIES">Supplies</option>
-                  <option value="CLEANING">Cleaning</option>
-                  <option value="INSURANCE">Insurance</option>
                   <option value="OTHER">Other</option>
                 </select>
               </div>

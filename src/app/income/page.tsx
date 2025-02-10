@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase';
+import { createBrowserClient } from '@supabase/ssr';
 import type { Income } from '@/types/database.types';
 import { generateSampleIncome } from '@/utils/sampleData';
 
@@ -15,6 +15,11 @@ export default function IncomePage() {
   });
   const [isLoading, setIsLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
   useEffect(() => {
     fetchIncomeEntries();
@@ -152,7 +157,7 @@ export default function IncomePage() {
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 />
               </div>
-              <div className="sm:col-span-2">
+              <div>
                 <label htmlFor="description" className="block text-sm font-medium text-gray-700">
                   Description
                 </label>
@@ -165,18 +170,19 @@ export default function IncomePage() {
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 />
               </div>
-              <div className="sm:col-span-2">
+              <div>
                 <label htmlFor="category" className="block text-sm font-medium text-gray-700">
                   Category
                 </label>
                 <select
                   id="category"
+                  required
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                 >
-                  <option value="RENTAL">Rental Income</option>
-                  <option value="SERVICES">Additional Services</option>
+                  <option value="RENTAL">Rental</option>
+                  <option value="SERVICE">Service</option>
                   <option value="OTHER">Other</option>
                 </select>
               </div>
