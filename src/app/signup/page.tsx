@@ -10,6 +10,7 @@ export default function SignUpPage() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { signUp } = useAuth();
   const router = useRouter();
@@ -17,6 +18,7 @@ export default function SignUpPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess(false);
 
     if (password !== confirmPassword) {
       setError('Passwords do not match');
@@ -27,7 +29,8 @@ export default function SignUpPage() {
 
     try {
       await signUp(email, password);
-      router.push('/login');
+      setSuccess(true);
+      // Don't redirect immediately to allow user to see the success message
     } catch {
       setError('Failed to create an account. Please try again.');
     } finally {
@@ -97,6 +100,11 @@ export default function SignUpPage() {
 
           {error && (
             <div className="text-red-600 text-sm text-center">{error}</div>
+          )}
+          {success && (
+            <div className="text-green-600 text-sm text-center p-4 bg-green-50 rounded-md">
+              Account created successfully! Please check your email for a verification link before signing in.
+            </div>
           )}
 
           <div>
